@@ -27,15 +27,36 @@ resetScores = () ->
 score = () ->
   return Math.floor(Random.fraction() * 10) * 5
 
-addScientist = () ->
-  newScientist = document.getElementById("newPlayer").value
+addScientist = (name) ->
   Players.insert
-    name: newScientist
-    score: score()
+    name: name
+    score: 0
 
 removeScientist = () ->
   scientist = Players.findOne(Session.get "selected_player")
   Players.remove scientist._id
+
+Validation =
+  clear: ->
+    return Session.set("error", undefined)
+  
+  set_error: (message) ->
+    return Session.set("error", message)
+
+  valid_name: (name) ->
+    this.clear()
+    if name.length == 0
+      this.set_error "Name can't be blank"
+      return false
+    else if this.player_exists name
+      this.set_error "Player already exists"
+      return false
+    else
+      return true
+    
+  player_exists: (name) ->
+    return Players.findOne
+      name: name
 
 if Meteor.isClient
   Meteor.startup ->
@@ -53,6 +74,9 @@ if Meteor.isClient
 
   Template.player.selected = ->
     (if Session.equals("selected_player", @_id) then "selected" else "")
+
+  Template.leaderboard.error = ->
+    return Session.get "error"
 
   Template.leaderboard.events =
     "click input.inc": ->
@@ -75,7 +99,9 @@ if Meteor.isClient
       resetScores()
 
     'click input.addButton': ->
-      addScientist()
+      new_player_name = document.getElementById("newPlayer").value.trim()
+      if Validation.valid_name new_player_name
+        addScientist new_player_name
 
     'click input.deleteButton': ->
       removeScientist()

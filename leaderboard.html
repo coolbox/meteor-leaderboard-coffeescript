@@ -12,6 +12,14 @@
   <div>
     <input type="button" class="sort" value="Change sorting" />
     <input type="button" class="randomScore" value="Reset" />
+  </div>
+
+  <div>
+    {{#if error}}
+      <span id="error" style="color: red;">
+        {{error}} 
+      </span>
+    {{/if}}
     <input type="text" id="newPlayer" value="" />
     <input type="button" class="addButton" value="Add" />
   </div>
